@@ -25,6 +25,12 @@
 
   - Fast and effective supervised learning for probabilistic prediction
 
+  * Model
+    - Summary of data in the training set
+      - mean
+      - standard deviation for each (no. attributes * class values) 
+      - calculates probability of a specific attribute belonging to each class value      
+
   * Assumptions
     - Independent probabilities between attributes of a given classs
     - Numerical attributes are normally distributed 
