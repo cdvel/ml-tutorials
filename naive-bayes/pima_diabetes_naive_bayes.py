@@ -189,18 +189,48 @@ print "\n-------- getAccuracy mini-test set=%r---------" % testSet
 print "Accuracy: %r" % accuracy
 
 
+# the probability of a data instance belonging to one class, divided by the 
+# sum of the probabilities of the data instance belonging to each class. 
+# For example an instance had the probability of 0.02 for class A and 0.001 
+# for class B, the likelihood of the instance belonging 
+# to class A is (0.02/(0.02+0.001))*100 which is about 95.23%.
+
+def calculateClassInstanceProbabilities (summaries, testSet):
+	probabilities = []
+	# for each instance
+	for t in range(len(testSet)):
+		# calculate summation of probabilities each class i.e., calculateClassProbabilities
+		cProbabilities = calculateClassProbabilities(summaries, testSet[t])
+
+		sumProbabilities = sum (cProbabilities.values())
+		# for each class in that result
+		ratios = []
+		for c in range(len(summaries)):
+		# compute ratio of probabiliy in that class
+			formatted = "{0:.2f}%".format((cProbabilities[c]/sumProbabilities)*100)
+			ratios.append(formatted)
+		probabilities.append(ratios);
+	return probabilities
+
 def main():
 	filename = 'pima-indians-diabetes.csv'
 	splitRatio = 0.67
 	dataset = loadCsv(filename)
 	trainingSet, testSet = splitDataset(dataset, splitRatio)
 	print "Split %r rows in to train=%r and test=%r rows" % (len(dataset), len(trainingSet), len(testSet))
-	print trainingSet[0]
+
 	summaries = summarizeByClass(trainingSet)
 	predictions =  getPredictions(summaries, testSet)
-	accuracy = getAccuracy(testSet, predictions)
-	print ('Accuracy: {0}%').format(accuracy)
 
+	pRatios = calculateClassInstanceProbabilities(summaries, testSet);
+	print "> probability of data instances belonging to one class"
+	for x in range(len(pRatios)):
+		print "%r: \t %r"% (x, pRatios[x])
+		
+	# classProbabilities =  calculateClassProbabilities(summaries, testSet[0]);
+	# print classProbabilities
+	accuracy = getAccuracy(testSet, predictions)
+	print ('\n> Accuracy: {0}%').format(accuracy)
 
 print "\n*********** Main ***********"
 main()

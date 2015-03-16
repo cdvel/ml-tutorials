@@ -25,11 +25,11 @@
 
   - Fast and effective supervised learning for probabilistic prediction
 
-  * Model
-    - Summary of data in the training set
-      - mean
-      - standard deviation for each (no. attributes * class values) 
-      - calculates probability of a specific attribute belonging to each class value      
+  * The Model 
+    - A summary of data in the training set
+    1. mean
+    2. standard deviation for each (no. attributes * class values) 
+    3. calculates probability of a specific attribute belonging to each class value      
 
   * Assumptions
     - Independent probabilities between attributes of a given classs
@@ -47,5 +47,4 @@
     - using categorical data (ratios)
     - numeric attributes (with normal distribution)
 
-  - [How to get best from Naive bayes] (http://machinelearningmastery.com/better-naive-bayes/)
- 
+  - [How to get best from Naive bayes] (http://machinelearningmastery.com/better-naive-bayes/) 
