@@ -1,6 +1,10 @@
 import csv
 import random
 
+
+# see https://en.wikipedia.org/wiki/Log_probability
+logEncode = True
+
 #1. handle data
 
 def loadCsv(filename):
@@ -119,14 +123,29 @@ print "Probability of belonging to this class: %r" % probability
 
 # 3.2 Calculate Class Probabilities
 
+# from https://gist.github.com/3991982.git
+def log_add(x, y):
+	maximum = max(x,y)
+	minimum = min(x,y)
+	if(abs(maximum - minimum) > 30):
+	# the difference is too small, return the just the maximum
+		return maximum
+	##return maximum + math.log(1 + math.pow(2, minimum - maximum), 2) 
+	return maximum + math.log(1 + math.pow(2, minimum - maximum)) 
+
+
 def calculateClassProbabilities(summaries, inputVector):
 	probabilities = {}
 	for classValue, classSummaries in summaries.iteritems():
-		probabilities[classValue] = 1
+		probabilities[classValue] = 0 if logEncode else 1
+		# print probabilities[classValue]
 		for i in range(len(classSummaries)):
 			mean, stdev = classSummaries[i]
-			x = inputVector[i]
-			probabilities[classValue] *= calculateProbability(x, mean, stdev) 
+			prob = calculateProbability(inputVector[i], mean, stdev) 
+			if logEncode:
+				probabilities[classValue] = log_add(probabilities[classValue], prob)
+			else :
+				probabilities[classValue] *= prob
 			pass
 		pass
 	return probabilities
@@ -141,6 +160,7 @@ print "Probabilities for each class: %r" % probabilities
 
 def predict(summaries, inputVector):
 	probabilities = calculateClassProbabilities(summaries, inputVector)
+	# print "class prob= %r"%probabilities
 	bestLabel, bestProb = None, -1
 	for classValue, probability in probabilities.iteritems():
 		if bestLabel is None or probability > bestProb:
@@ -201,8 +221,15 @@ def calculateClassInstanceProbabilities (summaries, testSet):
 	for t in range(len(testSet)):
 		# calculate summation of probabilities each class i.e., calculateClassProbabilities
 		cProbabilities = calculateClassProbabilities(summaries, testSet[t])
+		sumProbabilities = 0
 
-		sumProbabilities = sum (cProbabilities.values())
+		if logEncode :
+			for ix in range(len(cProbabilities)):
+				sumProbabilities =  -math.log(math.exp(-sumProbabilities) + math.exp(-cProbabilities[ix]))
+				pass
+		else :
+			sumProbabilities = sum (cProbabilities.values())
+
 		# for each class in that result
 		ratios = []
 		for c in range(len(summaries)):
@@ -218,14 +245,19 @@ def main():
 	dataset = loadCsv(filename)
 	trainingSet, testSet = splitDataset(dataset, splitRatio)
 	print "Split %r rows in to train=%r and test=%r rows" % (len(dataset), len(trainingSet), len(testSet))
+	print "Log Encode is " 'ON' if logEncode else 'OFF'
 
 	summaries = summarizeByClass(trainingSet)
+	# print "summaries=%r"%summaries
 	predictions =  getPredictions(summaries, testSet)
+	#print "predictions=%r"%predictions
 
-	pRatios = calculateClassInstanceProbabilities(summaries, testSet);
-	print "> probability of data instances belonging to one class"
-	for x in range(len(pRatios)):
-		print "%r: \t %r"% (x, pRatios[x])
+	if not logEncode:
+		pRatios = calculateClassInstanceProbabilities(summaries, testSet)
+		print "> probability of data instances belonging to one class"
+		print "No.  \t Class %r" % summaries.keys()
+		for x in range(len(pRatios)):
+			print "%r : \t %r"% (x, pRatios[x])
 		
 	# classProbabilities =  calculateClassProbabilities(summaries, testSet[0]);
 	# print classProbabilities
