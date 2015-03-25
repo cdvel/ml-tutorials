@@ -44,6 +44,14 @@
     - Pick class with highest probability
 
   * Implementations
+    - Encoding using [Log Probabilities](https://en.wikipedia.org/wiki/Log_probability):
+      - Reduces risk of floating point underflow (values too small to be represented)
+      - More efficient by using summation of log probabilities instead of product of probabilities
+      - Observations with the Iris dataset: 
+        - Less accurate 
+        - Faster
+        - Log = (0.5s - 0.8s, accuracy=66%) vs Prob = (0.6 - 0.8, accuracy=74%)
+        - Numerical stability (accuracy is more consistent)
     - using categorical data (ratios)
     - numeric attributes (with normal distribution)
 
